@@ -5,57 +5,57 @@
   <meta name="viewport" content="width=device-width">
   <title>数独求解</title>
   <style>
-  #control-panel, #numbers{
-	width:100%;
-	text-align:center;
-	margin: 5px;
-}
+	#control-panel, #numbers{
+		width:100%;
+		text-align:center;
+		margin: 5px;
+	}
 
-#stage {
-	margin:0 auto;
-}
+	#stage {
+		margin:0 auto;
+	}
 
-#stage td{
-	width: 30px;
-	height: 30px;
-	font-size: 14px;
-	text-align:center;
-}
+	#stage td{
+		width: 30px;
+		height: 30px;
+		font-size: 14px;
+		text-align:center;
+	}
 
-#stage .node{
-	border: 1px solid #ccc;
-	color: #000;
-}
+	#stage .node{
+		border: 1px solid #ccc;
+		color: #000;
+	}
 
-#stage tr .node:nth-child(3n-1){
-	border-left: 1px solid #000;
-}
+	#stage tr .node:nth-child(3n-1){
+		border-left: 1px solid #000;
+	}
 
-#stage tr:nth-child(3n-1) .node{
-	border-top: 1px solid #000;
-} 
+	#stage tr:nth-child(3n-1) .node{
+		border-top: 1px solid #000;
+	} 
 
-#stage tr .node:nth-child(9n+1){
-	border-right: 1px solid #000;
-}
+	#stage tr .node:nth-child(9n+1){
+		border-right: 1px solid #000;
+	}
 
-#stage tr:nth-child(9n+1) .node{
-	border-bottom: 1px solid #000;
-}
+	#stage tr:nth-child(9n+1) .node{
+		border-bottom: 1px solid #000;
+	}
 
-#stage .preset {
-	color: #666;
-	font-weight: bold;
-	text-decoration: underline;
-}
+	#stage .preset {
+		color: #666;
+		font-weight: bold;
+		background:#999;
+	}
 
-ol {
-	width: 320px;
-	height: auto;
-	margin: 0 auto;
-	font-size: 14px;
-	margin-top: 16px;
-}
+	ol, #time {
+		width: 320px;
+		height: auto;
+		margin: 0 auto;
+		font-size: 14px;
+		margin-top: 16px;
+	}
 </style>
 </head>
 <body>
@@ -85,6 +85,8 @@ ol {
 		<li>先点击数字，然后点击对应格子。</li>
 		<li>出完题后，点击“试算按钮”，即可生成答案。</li>
 	</ol>
+	<div id="time">
+	</div>
 </body>
 <script type="module">
 import SudokuSolver from './sudokusolver.js';
@@ -140,10 +142,12 @@ const addEventListener = () => {
 		);
 		*/
         let cls = new SudokuSolver(datas);
+		let time1 = +new Date();
         let {
             mydatas,
             solves
         } = cls.solve();
+		let time2 = +new Date();
 
         for (let i = 0; i < SIZE; ++i) {
             for (let j = 0; j < SIZE; ++j) {
@@ -157,6 +161,8 @@ const addEventListener = () => {
                 }
             }
         }
+
+		document.getElementById("time").innerHTML = "解法耗时：" + (time2 - time1) + "ms";
     });
 }
 
@@ -186,7 +192,7 @@ const main = () => {
 	
 	stage.innerHTML = lines.join("");
 	
-	addEventListener()
+	addEventListener();
 }
 
 main();
