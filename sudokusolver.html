@@ -22,9 +22,23 @@
 		text-align:center;
 	}
 
+	.ipt {
+		width: 28px;
+		height: 28px;
+		font-size: 14px;
+		text-align:center;	
+		border: 0;
+		position: absolute;
+		top:1px;
+		left:1px;
+		outline: none;
+		padding:0;
+	}
+
 	#stage .node{
 		border: 1px solid #ccc;
 		color: #000;
+		position: relative;
 	}
 
 	#stage tr .node:nth-child(3n-1){
@@ -59,30 +73,16 @@
 </style>
 </head>
 <body>
-	<div id="numbers">
-		<button>1</button>
-		<button>2</button>
-		<button>3</button>
-		<button>4</button>
-		<button>5</button>
-		<button>6</button>
-		<button>7</button>
-		<button>8</button>
-		<button>9</button>
-		<button>清</button>
-	</div>
-
 	<div id="control-panel">
 		<button id="ans">试填</button>
 		<button id="clear">全清</button>
 	</div>
 	
-	<table id="stage" cellspacing=0 cellpadding=0>
-		
+	<table id="stage" cellspacing=0 cellpadding=0>		
 	</table>
 
 	<ol>
-		<li>先点击数字，然后点击对应格子。</li>
+		<li>先点击对应格子，输入数字。</li>
 		<li>出完题后，点击“试算按钮”，即可生成答案。</li>
 	</ol>
 	<div id="time">
@@ -91,38 +91,66 @@
 <script type="module">
 import SudokuSolver from './sudokusolver.js';
 
-let cache;
 const SIZE = 9;
 let datas = Array(SIZE).fill(0).map(el => Array(SIZE).fill(0));
 
 const addEventListener = () => {
     // 点击数字
-    [...document.querySelectorAll("#numbers  button")].forEach(el => {
-        el.addEventListener("click", e => {
-            cache = e.target.innerHTML;
-        })
-    })
+    [...document.querySelectorAll("#stage .ipt")].forEach(el => {
+        el.addEventListener("blur", e => {
+			let el = e.target;
+            let v = el.value.trim();
+			let [tmp, i, j] = el.id.split("_");
+			let node = document.getElementById(`c_${i}_${j}`);
+
+			if (/^[0-9]$/.test(v)){
+				node.setAttribute("class", "node preset");
+				node.innerHTML = v;
+				el.style.display = "none";
+				datas[i][j] = v | 0; 
+			}
+			else {
+				e.target.value = '';
+			}
+        });
+    });
 
     // 点击格子
     document.querySelector("#stage").addEventListener("click", e => {
         let obj = e.target.id;
-        if (cache) {
-            if (cache == "清") {
-                cache = "";
-            }
-            let o = document.getElementById(obj);
-            o.innerHTML = cache;
-            o.setAttribute("class", "node preset");
+		let [tmp, i, j] = obj.split("_");
+		let ipt = document.createElement("input");
+		ipt.setAttribute('id', `t_${i}_${j}`);
+		ipt.setAttribute('class', "ipt");
+		ipt.setAttribute('maxlength', 1);
+		e.target.appendChild(ipt);
+		ipt.focus();
+    });
 
-            let [tmp, i, j] = obj.split("_");
-            datas[i][j] = cache | 0;
-            cache = undefined;
-        }
-    })
+	document.querySelector("#stage").addEventListener("blur", e => {
+        let obj = e.target;
+		let [tmp, i, j] = obj.id.split("_");
+
+		if (tmp == "t"){
+            let v = obj.value.trim();
+			let node = document.getElementById(`c_${i}_${j}`);
+
+			if (/^[0-9]$/.test(v)){
+				node.setAttribute("class", "node preset");
+				node.innerHTML = v;
+				obj.style.display = "none";
+				datas[i][j] = v | 0; 
+			}
+			else {
+				e.target.value = '';
+				e.target.focus();
+			}
+		}
+    }, true);
 
     document.querySelector("#clear").addEventListener("click", e => {
         location.reload();
-    })
+    });
 
     // 试填
     document.querySelector("#ans").addEventListener("click", e => {
@@ -184,7 +212,7 @@ const main = () => {
 	   cells = [];
 	   cells.push(`<td>R${i+1}</td>`)
 	   for(let j = 0; j < 9; ++j){
-		  cells.push("<td id='c_"+i+"_"+j+"' class='node'></td>");
+		  cells.push("<td id='c_"+i+"_"+j+"' class='node'><input maxlength='1' class='ipt' type='text' id='t_"+i+"_"+j+"'/></td>");
 	   }	
 		
 	   lines.push(cells.join("")+"</tr>");
