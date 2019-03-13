@@ -94,6 +94,23 @@ import SudokuSolver from './sudokusolver.js';
 const SIZE = 9;
 let datas = Array(SIZE).fill(0).map(el => Array(SIZE).fill(0));
 
+const syncHash = () => {
+	var ret = []
+
+	if (document.querySelectorAll(".preset").length) {
+		[...document.querySelectorAll(".preset")].forEach(el => {
+			if (el.innerHTML !== ""){
+				let tmp = el.id.split("_");
+
+
+				ret.push(Number(tmp[1])+1+""+(Number(tmp[2])+1)+el.innerHTML)
+			}
+		});
+
+		location.hash = ret.join("");
+	}
+};
+
 const addEventListener = () => {
     // 点击数字
     [...document.querySelectorAll("#stage .ipt")].forEach(el => {
@@ -144,7 +161,9 @@ const addEventListener = () => {
 			else {
 				e.target.value = '';
 				e.target.focus();
-			}
+			} 
+
+			setTimeout(syncHash, 100)
 		}
     }, true);
 
@@ -219,6 +238,20 @@ const main = () => {
 	}
 	
 	stage.innerHTML = lines.join("");
+
+	let hash = location.hash === undefined ? "" : location.hash.substr(1);
+
+	let initFill = hash.replace(/[^0-9]/g, "").match(/[0-9]{3}/g)
+
+	if (initFill){
+		initFill.forEach(el => {
+			let node = document.getElementById(`c_${el[0]-1}_${el[1]-1}`);
+			node.setAttribute("class", "node preset");
+			datas[el[0]-1][el[1]-1] = el[2]
+
+			node.innerHTML = el[2];
+		})
+	}
 	
 	addEventListener();
 }
